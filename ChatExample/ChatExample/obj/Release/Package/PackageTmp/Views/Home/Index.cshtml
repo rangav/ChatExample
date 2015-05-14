@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@section scripts{
+    <script>
+        // Enable pusher logging - don't include this in production
+        Pusher.log = function(message)
+        {
+            if (window.console && window.console.log)
+            {
+                window.console.log(message);
+            }
+        };
+
+        var pusher = new Pusher('0cdc4d4795653acc81b0');
+        var channel = pusher.subscribe('test_channel');
+
+        pusher.connection.bind("state_change", function(status)
+        {
+            $("#connection-status").text(status.current);
+        });
+
+        channel.bind("new_message", function(data)
+        {
+            $("#messages").append("<div>" + data.message + "</div>");
+        });
+
+        $(document).ready(function()
+        {
+            $("#send").click(function()
+            {
+                var posturl = "/home/pushmessage";
+                var message = $("#usermessage").val();
+
+                $.ajax({
+                    url: posturl,
+                    type: "post",
+                    data: {
+                        msg:message
+                    }
+                });
+            });
+        });
+    </script>
+}
+<br />
+<br />
+
+<div class="row">
+    
+    <div class="col-md-4">
+        <h4 class="text-danger">Send Message</h4>
+        <textarea class="form-control" id="usermessage" rows="3"></textarea>
+        <br />
+        <button id="send" class="btn btn-success">Send Message</button>
+    </div>
+    
+    <div class="col-md-4">
+        <h4 class="text-danger">Connection Status:</h4>
+        <h4 id="connection-status"></h4>
+        <br />
+        <h4 class="text-danger">Chat Window:</h4>
+        <div id="messages" class="alert alert-success" style="height:200px;overflow-y:scroll">
+        </div>
+
+    </div>
+
+</div>

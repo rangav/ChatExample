@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@section scripts{
+    <script>
+        // Enable pusher logging - don't include this in production
+        Pusher.log = function (message) {
+            if (window.console && window.console.log) {
+                window.console.log(message);
+            }
+        };
+
+        var pusher = new Pusher('[App Key]', {
+            authEndpoint: 'http://localhost:53876/home/auth'
+        });
+
+        var channel = pusher.subscribe('private-test_channel');
+
+        channel.bind('pusher:subscription_succeeded', function (status) {
+            channel.bind("new_message", function (data) {
+                $("#messages").append("<div>" + data.message + "</div>");
+            });
+        });
+
+        channel.bind('pusher:subscription_error', function (status)
+        {
+            $("#usermessage").prop('disabled', true);
+            $("#messages").append("<div>UnAuthorized User:<br/>Your Subscription failed!</div>");
+        });
+
+        pusher.connection.bind("state_change", function (status) {
+            $("#connection-status").text(status.current);
+        });
+
+        $(document).ready(function () {
+            $("#send").click(function () {
+                var posturl = "/home/privatemessage";
+                var message = $("#usermessage").val();
+
+                $.ajax({
+                    url: posturl,
+                    type: "post",
+                    data: {
+                        msg: message
+                    }
+                });
+            });
+        });
+    </script>
+}
+<br />
+<br />
+
+<div class="row">
+
+    <div class="col-md-4">
+        <h4 class="text-danger">Send Message</h4>
+        <textarea class="form-control" id="usermessage" rows="3"></textarea>
+        <br />
+        <button id="send" class="btn btn-success">Send Message</button>
+    </div>
+
+    <div class="col-md-4">
+        <h4 class="text-danger">Connection Status:</h4>
+        <h4 id="connection-status"></h4>
+        <br />
+        <h4 class="text-danger">Chat Window:<span id="error" class="text-danger"></span></h4>
+        <div id="messages" class="alert alert-success" style="height:200px;overflow-y:scroll">
+        </div>
+
+    </div>
+
+</div>
