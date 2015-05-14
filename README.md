@@ -8,3 +8,6 @@ and add the respective keys to project
 To test the private channels create user accounts
 
 
+![alt tag](https://raw.githubusercontent.com/rangav/ChatExample/master/pusher.PNG)
+
+
